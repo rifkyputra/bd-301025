@@ -5,5 +5,8 @@
   "scripts": {
     "build": "echo 'no build script'",
     "compress:assets": "bash ./scripts/compress-assets.sh"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
   }
 }
