@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <!-- Google Fonts: Inter (body) and Poppins (headings) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;600;700&family=Dancing+Script:wght@400;700&display=swap&family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Typography tokens */
+            --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+            --font-heading: 'Poppins', 'Inter', system-ui, sans-serif;
+            --font-script: 'Dancing Script', cursive;
+            --fs-hero: 2.25rem; /* main title */
+            --fs-body: 1.125rem;
+            --line-body: 1.6;
+            --radius-lg: 12px;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e6e6e6;
+            padding: 1rem;
+        }
+
+        .card {
+            /* paper base color + subtle gradient */
+            background:
+                linear-gradient(180deg, #fffdf9 0%, #fffcf7 100%),
+                url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4'><circle cx='2' cy='2' r='0.6' fill='%23eae6e0' fill-opacity='0.12'/></svg>") repeat;
+            background-size: 100% 100%, 6px 6px; /* grain tile */
+            border-radius: 12px;
+            /* softer drop shadow and faint inset highlight to feel like thick paper */
+            box-shadow: 0 18px 40px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6);
+            width: 100%;
+            max-width: 440px;
+            /* subtle neutral border so pink accent remains in other UI elements */
+            border: 1px solid rgba(0,0,0,0.06);
+            padding: 1.5rem;
+            position: relative;
+            z-index: 2; /* above balloons (which are placed at z-index:0) */
+            overflow: visible; /* allow subtle folded corner to sit outside */
+            transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms;
+            transform-origin: center;
+        }
+
+        /* hover lift for tactile feedback */
+        .card:hover {
+            transform: translateY(-8px) rotate(-0.25deg);
+            box-shadow: 0 28px 60px rgba(0,0,0,0.16);
+        }
+
+        /* subtle folded-corner accent */
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 56px;
+            height: 56px;
+            pointer-events: none;
+            background: linear-gradient(135deg, rgba(0,0,0,0.04) 0%, rgba(255,255,255,0.95) 60%);
+            clip-path: polygon(100% 0, 0 0, 100% 100%);
+            border-radius: 3px;
+            box-shadow: -6px 6px 12px rgba(0,0,0,0.06);
+            opacity: 0.95;
+            transform-origin: 100% 0;
+            transition: transform 300ms ease;
+        }
+
+        .card:hover::before {
+            transform: translateY(-2px) rotate(-6deg) scale(1.02);
+        }
+
+        /* embossed/soft-shadow title for tactile feel */
+        .title {
+            color: #ff2b8b; /* pink title */
+            font-family: var(--font-heading);
+            font-size: var(--fs-hero);
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            animation: bounce 1s infinite;
+            /* emboss effect */
+            text-shadow: 0 1px 0 rgba(255,255,255,0.8), 0 8px 18px rgba(0,0,0,0.08);
+        }
+
+        /* gentle flutter on load to simulate a paper breathing */
+        @keyframes flutter {
+            0% { transform: rotate(-0.6deg) translateY(0); }
+            50% { transform: rotate(0.6deg) translateY(-2px); }
+            100% { transform: rotate(-0.6deg) translateY(0); }
+        }
+
+        .card.load-flutter {
+            animation: flutter 5s ease-in-out 0.6s 1;
+        }
+
+        /* floating dust particles (very subtle) */
+        .dust {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: rgba(0,0,0,0.06);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(0) scale(0.6);
+            animation: dustRise linear infinite;
+            filter: blur(0.2px);
+            z-index: 5;
+        }
+
+        @keyframes dustRise {
+            0% { opacity: 0; transform: translateY(12px) scale(0.6); }
+            10% { opacity: 0.12; }
+            100% { opacity: 0; transform: translateY(-80px) scale(1); }
+        }
+
+       
+
+        /* faint crease line across the card to suggest folded paper texture */
+        .card::after {
+            content: "";
+            position: absolute;
+            left: 6%;
+            right: 6%;
+            top: 48%;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.04) 50%, rgba(0,0,0,0) 100%);
+            transform: translateY(-50%) rotate(-0.12deg);
+            opacity: 0.03;
+            pointer-events: none;
+        }
+
+        /* full-screen background layer for balloons (non-interactive) */
+        .balloon-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        /* surrounding photos layer sits between balloons (0) and the card (2) */
+        .surrounding-photos {
+            position: fixed;
+            inset: 0;
+            z-index: 1; /* between balloons (0) and card (2) */
+            pointer-events: none; /* allow clicks through */
+        }
+
+        .surrounding-photos .photo {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.96);
+            animation-name: photoFade;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+            animation-timing-function: ease-in-out;
+        }
+
+        @keyframes photoFade {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.96); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.96); }
+        }
+
+        /* example positions around the centered card */
+        .surrounding-photos .pos1 { left: 24%; top: 28%; animation-duration: 7s; animation-delay: 0s; }
+        .surrounding-photos .pos2 { left: 76%; top: 28%; animation-duration: 6.5s; animation-delay: 1s; }
+        .surrounding-photos .pos3 { left: 14%; top: 50%; animation-duration: 8s; animation-delay: 0.6s; }
+        .surrounding-photos .pos4 { left: 86%; top: 50%; animation-duration: 7.5s; animation-delay: 1.2s; }
+        .surrounding-photos .pos5 { left: 30%; top: 74%; animation-duration: 6.8s; animation-delay: 0.3s; }
+        .surrounding-photos .pos6 { left: 70%; top: 74%; animation-duration: 7.2s; animation-delay: 0.9s; }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            text-align: center;
+        }
+
+        .icon-wrapper {
+            background-color: rgba(255, 43, 139, 0.08); /* soft pink tint */
+            border-radius: 9999px;
+            padding: 1rem;
+        }
+
+        .cake-emoji {
+            font-size: 3rem;
+            line-height: 1;
+        }
+
+        .title {
+            color: #ff2b8b; /* pink title */
+            font-family: var(--font-heading);
+            font-size: var(--fs-hero);
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            animation: bounce 1s infinite;
+        }
+
+        /* Handwritten accent class for small flourishes */
+        .handwritten {
+            font-family: var(--font-script);
+            font-weight: 400;
+            display: inline-block;
+            font-size: 1.05em;
+            transform: translateY(-0.04em);
+            color: #ff2b8b;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.25);
+            letter-spacing: 0;
+        }
+
+        .manrope {
+  font-family: "Manrope", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+
+        .message {
+            color: #5b616b;
+            font-size: var(--fs-body);
+            line-height: var(--line-body);
+        }
+
+        .button {
+            background-color: #ff2b8b;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: var(--font-sans);
+            cursor: pointer;
+            transition: transform 0.1s;
+            animation: pulse 2s infinite;
+        }
+
+        .button:hover {
+            background-color: #e02278; /* darker pink on hover */
+        }
+
+        .button:active {
+            transform: scale(0.95);
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            transform: scale(0.7);
+            transition: transform 0.3s ease;
+            text-align: center;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal img {
+            width: 300px;
+            height: 300px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin: 1rem auto;
+            border: 3px solid #ff2b8b; /* pink border */
+        }
+
+        .modal h2 {
+            color: #ff2b8b;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .modal p {
+            color: #4b5563;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-button {
+            background-color: #6b7280;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .close-button:hover {
+            background-color: #4b5563;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(-5%);
+                animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+            }
+            50% {
+                transform: translateY(0);
+                animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .85;
+            }
+        }
+
+        /* Heart particle styles */
+        .heart-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1; /* between balloons (0) and card (2) */
+            overflow: hidden;
+        }
+
+        .heart {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            transform: translate3d(-50%, 0, 0) scale(1);
+            pointer-events: none;
+            will-change: transform, opacity;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.08));
+            opacity: 0.98;
+            animation: heartFloatUp linear forwards;
+        }
+
+        /* make the heart shape using pseudo elements */
+        .heart:before,
+        .heart:after {
+            content: "";
+            position: absolute;
+            width: 50%;
+            height: 80%;
+            background: currentColor;
+            border-radius: 50% 50% 0 0;
+            top: 0;
+            left: 25%;
+        }
+
+        .heart:before {
+            transform: translateX(-55%) rotate(-45deg);
+            transform-origin: 100% 100%;
+        }
+
+        .heart:after {
+            transform: translateX(5%) rotate(45deg);
+            transform-origin: 0 100%;
+        }
+
+        @keyframes heartFloatUp {
+            0% {
+                transform: translate3d(-50%, 0, 0) scale(0.8) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 0.95;
+            }
+            100% {
+                transform: translate3d(-50%, -220px, 0) scale(1.05) rotate(-12deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="content">
+            <div class="icon-wrapper">
+                <span class="cake-emoji">🎂</span>
+            </div>
+            <div>
+                <h1 class="title">Happy <span class="handwritten">Birthday, My Love!</span></h1>
+                <p class="message manrope">
+                    Every moment with you is a gift — may today sparkle with love, laughter, and warm memories. I love you more than words can say. ❤️
+                </p>
+            </div>
+            <button class="button" onclick="openWish()">
+                Make a wish! 🎂
+            </button>
+        </div>
+    </div>
+
+    <!-- Birthday Wish Modal -->
+    <div class="modal-overlay" id="wishModal">
+        <div class="modal">
+            <img src="assets/1.png" alt="Photo of my love" id="birthdayImage">
+            <h2>To My Dearest</h2>
+            <p>
+                Today I celebrate you — the light you bring into my life, your laughter, and the kindness in your heart. May this year gift you new adventures, gentle moments, and dreams fulfilled.
+                <br><br>
+                I'm so grateful for every memory we've made and can't wait for the ones to come. Happy Birthday, my love. 🎉💕
+            </p>
+            <button class="close-button" onclick="closeWish()">Close</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- balloon background container (non-interactive) -->
+    <div class="balloon-bg" id="balloonBg" aria-hidden="true"></div>
+
+    <!-- heart particle layer (non-interactive) -->
+    <div class="heart-layer" id="heartLayer" aria-hidden="true"></div>
+
+    <script type="module">
+        // Use the balloons() helper function from balloons-js
+        import { balloons } from 'https://cdn.jsdelivr.net/npm/balloons-js@0.0.3/dist/index.esm.min.js';
+
+        // Create multiple balloons (batch)
+        function createBalloonsBatch(count = 1) {
+            for (let i = 0; i < count; i++) {
+                try {
+                    balloons();
+                } catch (e) {
+                    console.warn('balloons() failed', e);
+                    break;
+                }
+            }
+        }
+
+        // Spawn a single balloon (background)
+        function spawnOneBalloon() {
+            try {
+                balloons();
+            } catch (e) {
+                console.warn('balloons() failed', e);
+            }
+        }
+
+        // Background spawner controls
+        function startBalloonBackground(intervalMs = 800) {
+            if (window.__balloonInterval) return;
+            window.__balloonInterval = setInterval(spawnOneBalloon, intervalMs);
+        }
+
+        function stopBalloonBackground() {
+            if (window.__balloonInterval) {
+                clearInterval(window.__balloonInterval);
+                window.__balloonInterval = null;
+            }
+        }
+
+        // Expose globals for manual control
+        // window.__createBalloons = () => createBalloonsBatch(1);
+        window.__balloonsLib = balloons;
+        window.startBalloonBackground = startBalloonBackground;
+        window.stopBalloonBackground = stopBalloonBackground;
+
+        // Start initial batch and background spawning once page loads
+        window.addEventListener('load', () => {
+            createBalloonsBatch(4);
+            startBalloonBackground(9800);
+        });
+
+        // Pause background spawning when the page is hidden to save resources
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) stopBalloonBackground();
+            else startBalloonBackground(9800);
+        });
+    </script>
+
+        <!-- surrounding photos (non-interactive) -->
+        <div class="surrounding-photos" aria-hidden="true">
+            <img class="photo pos1" src="assets/1.png" alt=""/>
+            <img class="photo pos2" src="assets/2.png" alt=""/>
+            <img class="photo pos3" src="assets/3.png" alt=""/>
+            <img class="photo pos4" src="assets/1.png" alt=""/>
+            <img class="photo pos5" src="assets/5.png" alt=""/>
+            <img class="photo pos6" src="assets/6.png" alt=""/>
+        </div>
+    <script>
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function throwConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#ff2b8b','#ff66a3','#ff9ac4','#ffd1e8']
+            });
+        }
+
+        /* ------------------ Heart particle utilities ------------------ */
+        function spawnHeart(options = {}) {
+            const layer = document.getElementById('heartLayer');
+            if (!layer) return;
+
+            const colors = options.colors || ['#ff2b8b','#ff66a3','#ff9ac4','#ffd1e8','#ff4d8f'];
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+
+            const size = options.size || Math.floor(randomInRange(16, 34));
+            heart.style.width = size + 'px';
+            heart.style.height = size + 'px';
+
+            // pick a color and apply it to the heart via `color` (used by pseudo elements)
+            heart.style.color = options.color || colors[Math.floor(Math.random() * colors.length)];
+
+            // position horizontally as a percentage
+            const left = (typeof options.left === 'number') ? options.left : (50 + randomInRange(-22, 22));
+            heart.style.left = left + '%';
+
+            // start near the lower area (so they float up)
+            const bottom = (typeof options.bottom === 'number') ? options.bottom : randomInRange(8, 28);
+            heart.style.bottom = bottom + '%';
+
+            const duration = options.duration || Math.floor(randomInRange(2800, 5200));
+            heart.style.animationDuration = duration + 'ms';
+            heart.style.opacity = '0';
+
+            // gentle random rotation
+            const rot = Math.floor(randomInRange(-18, 18));
+            heart.style.transform = `translate3d(-50%,0,0) rotate(${rot}deg)`;
+
+            layer.appendChild(heart);
+
+            // remove after animation ends
+            setTimeout(() => {
+                heart.remove();
+            }, duration + 220);
+        }
+
+        function burstHearts(count = 8, centerPercent = 50) {
+            for (let i = 0; i < count; i++) {
+                const left = centerPercent + randomInRange(-18, 18);
+                spawnHeart({ left, bottom: randomInRange(8, 20), size: Math.floor(randomInRange(18, 36)), duration: Math.floor(randomInRange(1800, 3600)) });
+            }
+        }
+
+        function startHeartBackground(intervalMs = 900) {
+            if (window.__heartInterval) return;
+            window.__heartInterval = setInterval(() => {
+                // spawn small decorative heart near center-left or center-right occasionally
+                const center = Math.random() > 0.5 ? randomInRange(36, 54) : randomInRange(46, 64);
+                spawnHeart({ left: center, size: Math.floor(randomInRange(14, 26)), duration: Math.floor(randomInRange(3200, 5200)) });
+            }, intervalMs);
+        }
+
+        function stopHeartBackground() {
+            if (window.__heartInterval) {
+                clearInterval(window.__heartInterval);
+                window.__heartInterval = null;
+            }
+        }
+
+        /* ------------------ integrate with existing effects ------------------ */
+        function openWish() {
+            throwConfetti();
+
+            // heart burst & a few extra floating hearts for love effect
+            burstHearts(18, 50);
+            for (let i = 0; i < 6; i++) {
+                setTimeout(() => spawnHeart({ size: Math.floor(randomInRange(18, 36)), duration: Math.floor(randomInRange(2000, 4200)), left: 50 + randomInRange(-20,20) }), i * 80);
+            }
+
+            // trigger additional balloons when opening the wish modal (if available)
+            if (window.__createBalloons) {
+                try { window.__createBalloons(); } catch (e) { console.warn(e); }
+            } else if (window.__balloonsLib) {
+                // if library exists, call it a few times
+                for (let i = 0; i < 2; i++) try { window.__balloonsLib(); } catch (e) { console.warn(e); }
+            }
+
+            document.getElementById('wishModal').classList.add('active');
+        }
+
+        function closeWish() {
+            document.getElementById('wishModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('wishModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeWish();
+            }
+        });
+
+        // Initial confetti animation
+        (function () {
+            const duration = 10 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0, colors: ['#ff2b8b','#ff66a3','#ff9ac4','#ffd1e8'] };
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+                
+                confetti({
+                    ...defaults,
+                    particleCount,
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+                });
+                confetti({
+                    ...defaults,
+                    particleCount,
+                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+                });
+            }, 250);
+        })();
+    </script>
+    <script>
+        // Start heart background when the page loads (if heart utilities are present)
+        window.addEventListener('load', () => {
+            if (typeof startHeartBackground === 'function') startHeartBackground(1200);
+        });
+
+        // Pause/resume hearts on visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (typeof stopHeartBackground === 'function') stopHeartBackground();
+            } else {
+                if (typeof startHeartBackground === 'function') startHeartBackground(1200);
+            }
+        });
+
+        // small hover burst on the button to make it feel alive
+        (function () {
+            const wishButton = document.querySelector('.button');
+            if (!wishButton) return;
+            wishButton.addEventListener('mouseenter', () => {
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        if (typeof spawnHeart === 'function') spawnHeart({ size: Math.floor(randomInRange(12, 20)), left: 50 + randomInRange(-12, 12), duration: Math.floor(randomInRange(1800, 3000)) });
+                    }, i * 90);
+                }
+            });
+        })();
+    </script>
+    <script>
+        // Small parallax effect for the card and surrounding photos.
+        (function(){
+            const card = document.querySelector('.card');
+            const photos = document.querySelector('.surrounding-photos');
+
+            function handleMove(e) {
+                const rect = document.body.getBoundingClientRect();
+                const cx = rect.width / 2;
+                const cy = rect.height / 2;
+                const x = (e.clientX - cx) / cx; // -1..1
+                const y = (e.clientY - cy) / cy; // -1..1
+
+                // subtle card tilt and translate
+                const tx = x * 6; // px
+                const ty = y * 6; // px
+                const rz = x * -0.6; // deg
+                if (card) card.style.transform = `translate3d(${ -tx }px, ${ -ty }px, 0) rotate(${ rz }deg)`;
+
+                // photos parallax (opposite direction, subtler)
+                if (photos) photos.style.transform = `translate3d(${ tx * 0.6 }px, ${ ty * 0.6 }px, 0)`;
+            }
+
+            // Reset transforms when leaving
+            function reset() {
+                const card = document.querySelector('.card');
+                const photos = document.querySelector('.surrounding-photos');
+                if (card) card.style.transform = '';
+                if (photos) photos.style.transform = '';
+            }
+
+            // Throttle mousemove for performance
+            let raf = null;
+            window.addEventListener('mousemove', (e) => {
+                if (raf) cancelAnimationFrame(raf);
+                raf = requestAnimationFrame(() => handleMove(e));
+            }, { passive: true });
+
+            window.addEventListener('mouseleave', reset);
+            window.addEventListener('blur', reset);
+
+            // Add a few tiny dust particles for visual interest
+            // function createDust(count = 10){
+            //     const frag = document.createDocumentFragment();
+            //     for (let i=0;i<count;i++){
+            //         const d = document.createElement('div');
+            //         d.className = 'dust';
+            //         // random position near center
+            //         const left = 40 + Math.random()*20; // percent
+            //         const top = 45 + Math.random()*20;
+            //         d.style.left = left + '%';
+            //         d.style.top = top + '%';
+            //         d.style.width = (3 + Math.random()*6) + 'px';
+            //         d.style.height = d.style.width;
+            //         d.style.animationDuration = (4 + Math.random()*6) + 's';
+            //         d.style.animationDelay = (Math.random()*2) + 's';
+            //         frag.appendChild(d);
+            //     }
+            //     document.body.appendChild(frag);
+            // }
+
+            // Run on load
+            // window.addEventListener('load', () => {
+            //     // trigger one-time flutter animation class
+            //     if (card) card.classList.add('load-flutter');
+            //     createDust(12);
+            //     // remove flutter class after animation ends to avoid conflict with hover transform
+            //     setTimeout(()=>{ if (card) card.classList.remove('load-flutter'); }, 6200);
+            // });
+        })();
+    </script>
+</body>
+</html>
