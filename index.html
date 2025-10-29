@@ -32,7 +32,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #e6e6e6;
+            background: linear-gradient(135deg, #ffe6f0 0%, #f0e6ff 50%, #e6f0ff 100%);
             padding: 1rem;
         }
 
@@ -428,9 +428,9 @@
                 <span class="cake-emoji">🎂</span>
             </div>
             <div>
-                <h1 class="title">Happy <span class="handwritten">Birthday, My Love!</span></h1>
+                <h1 class="title">Happy <span class="handwritten">Birthday, My Forever Love!</span></h1>
                 <p class="message manrope">
-                    Every moment with you is a gift — may today sparkle with love, laughter, and warm memories. I love you more than words can say. ❤️
+                    My dearest Cindy, every beat of my heart whispers your name. In your eyes, I find the stars, in your smile, the sunrise. Today, as you turn another year more beautiful, I promise to cherish every moment, every laugh, every tender touch. You are my forever, my love, my everything. Happy Birthday, my soulmate. ❤️💕
                 </p>
             </div>
             <button class="button" onclick="openWish()">
@@ -445,9 +445,16 @@
             <img src="assets/1.png" alt="Photo of my love" id="birthdayImage">
             <h2>To My Dearest Cindy Oktavian Dini</h2>
             <p>
-                Today I celebrate you, the light you bring into my life, your kindness in your heart. May this year gift you new adventures, gentle moments, and dreams fulfilled, ours to share.
+                Today I celebrate you, the light and the love you bring into my life. May this year gift you new adventures, gentle moments, and dreams fulfilled, ours to share.
                 <br><br>
-                I'm so grateful for every memory we've made and can't wait for the ones to come. Happy Birthday, my love. 🎉💕
+                I'm so grateful for every memory we've made and can't wait for the ones to come. Happy Birthday, my love and my one and only. 🎉💕
+                <br><br>
+                <em>"In your arms, I've found my home,<br>
+                Where love blooms like a rose in June.<br>
+                With every kiss, my heart does roam,<br>
+                Forever yours, beneath the moon."</em>
+                <br><br>
+                Yours eternally, with all my love. 💖
             </p>
             <button class="close-button" onclick="closeWish()">Close</button>
         </div>
@@ -609,8 +616,8 @@
             throwConfetti();
 
             // heart burst & a few extra floating hearts for love effect
-            burstHearts(18, 50);
-            for (let i = 0; i < 6; i++) {
+            burstHearts(25, 50);
+            for (let i = 0; i < 10; i++) {
                 setTimeout(() => spawnHeart({ size: Math.floor(randomInRange(18, 36)), duration: Math.floor(randomInRange(2000, 4200)), left: 50 + randomInRange(-20,20) }), i * 80);
             }
 
@@ -667,7 +674,7 @@
     <script>
         // Start heart background when the page loads (if heart utilities are present)
         window.addEventListener('load', () => {
-            if (typeof startHeartBackground === 'function') startHeartBackground(1200);
+            if (typeof startHeartBackground === 'function') startHeartBackground(800);
         });
 
         // Pause/resume hearts on visibility change
@@ -675,7 +682,7 @@
             if (document.hidden) {
                 if (typeof stopHeartBackground === 'function') stopHeartBackground();
             } else {
-                if (typeof startHeartBackground === 'function') startHeartBackground(1200);
+                if (typeof startHeartBackground === 'function') startHeartBackground(800);
             }
         });
 
